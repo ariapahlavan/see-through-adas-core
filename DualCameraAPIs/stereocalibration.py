@@ -9,11 +9,19 @@ import time
 import cv2
 import numpy as np
 
-
 inputAsInt = lambda prompt: int(input(prompt))
 
-LEFT_DIR = "./left"
-RIGHT_DIR = "./right"
+# MY_PATH = "/Users/ariapahlavan/code/py/see-through-video-stitching"
+MY_PATH = "."
+LEFT_DIR = MY_PATH + "/left"
+RIGHT_DIR = MY_PATH + "/right"
+
+try:
+    os.mkdir(LEFT_DIR)
+    os.mkdir(RIGHT_DIR)
+except:
+    print("directories already exist")
+
 IMAGE_NAME_FORMAT = "/{:06d}.jpg"
 LEFT_PATH = LEFT_DIR + IMAGE_NAME_FORMAT
 RIGHT_PATH = RIGHT_DIR + IMAGE_NAME_FORMAT
@@ -33,8 +41,9 @@ CAMERA_RESOLUTION = (CAMERA_WIDTH, CAMERA_HEIGHT)
 
 # CROP_WIDTH = 960
 
-cam1 = 0
-cam2 = 2
+cam1 = inputAsInt("Enter camera 1 source: ")
+cam2 = inputAsInt("Enter camera 2 source: ")
+print("Cameras to be used are {} and {}".format(cam1, cam2))
 dualCam = DualCameraStream(cam1=cam1, cam2=cam2, resolution=CAMERA_RESOLUTION)
 
 
@@ -81,7 +90,7 @@ CHESSBOARD_WIDTH = inputAsInt("Enter WIDTH of chessboard in number of squares: "
 
 print("Chessboard dimensions entered: ({}, {})".format(CHESSBOARD_WIDTH, CHESSBOARD_HEIGHT))
 
-CHESSBOARD_SIZE = (CHESSBOARD_WIDTH, CHESSBOARD_WIDTH)
+CHESSBOARD_SIZE = (CHESSBOARD_WIDTH, CHESSBOARD_HEIGHT)
 
 CHESSBOARD_OPTIONS = (cv2.CALIB_CB_ADAPTIVE_THRESH |
                       cv2.CALIB_CB_NORMALIZE_IMAGE |
@@ -222,7 +231,7 @@ print("Calibrating cameras together...")
     cv2.CALIB_FIX_INTRINSIC, TERMINATION_CRITERIA)
 
 print("Rectifying cameras...")
-# TODO: Why do I care about the disparityToDepthMap?
+# TODO: Why do I ccdare about the disparityToDepthMap?
 (leftRectification, rightRectification, leftProjection, rightProjection,
  dispartityToDepthMap, leftROI, rightROI) = cv2.stereoRectify(
     leftCameraMatrix, leftDistortionCoefficients,
@@ -253,10 +262,6 @@ REMAP_INTERPOLATION = cv2.INTER_LINEAR
 
 DEPTH_VISUALIZATION_SCALE = 2048
 
-if len(sys.argv) != 2:
-    print("Syntax: {0} CALIBRATION_FILE".format(sys.argv[0]))
-    sys.exit(1)
-
 calibration = np.load(outputFile, allow_pickle=False)
 
 imageSize = tuple(calibration["imageSize"])
@@ -284,7 +289,6 @@ stereoMatcher.setROI1(leftROI)
 stereoMatcher.setROI2(rightROI)
 stereoMatcher.setSpeckleRange(16)
 stereoMatcher.setSpeckleWindowSize(45)
-
 
 # Grab both frames first, then retrieve to minimize latency between cameras
 while True:
