@@ -99,8 +99,8 @@ TERMINATION_CRITERIA = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_MAX_ITER, 30,
 
 MAX_IMAGES = 64
 
-leftImageDir = LEFT_PATH
-rightImageDir = RIGHT_PATH
+leftImageDir = LEFT_DIR
+rightImageDir = RIGHT_DIR
 outputFile = input("Enter path for storing the calibration configuration file: ")
 
 
