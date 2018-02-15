@@ -17,8 +17,8 @@ RIGHT_DIR = "./right"
 try:
     os.mkdir(LEFT_DIR)
     os.mkdir(RIGHT_DIR)
-except:
-    print("directories already exist")
+except IOError:
+    print("Left and right directories already exist.")
 
 IMAGE_NAME_FORMAT = "/{:06d}.jpg"
 leftPath = LEFT_DIR + IMAGE_NAME_FORMAT
@@ -59,10 +59,13 @@ def cropHorizontal(image):
 frameId = 0
 
 # capture:
-input("Press enter to start taking 64 pictures of the chessboard...")
+DEFAULT_NUM_SAMPLES = 64
+numSamples = inputAsInt("Enter the number of frames to capture ({}): ".format(DEFAULT_NUM_SAMPLES),
+                        DEFAULT_NUM_SAMPLES)
+input("Press enter to start taking {} pictures of the chessboard...".format(numSamples))
 time.sleep(2)
 
-while frameId != 64:
+while frameId != numSamples:
     leftFrame, rightFrame = dualCam.read()
 
     leftFrame = cropHorizontal(leftFrame)
@@ -112,7 +115,7 @@ OPTIMIZE_ALPHA = 0.25
 TERMINATION_CRITERIA = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_MAX_ITER, 30,
                         0.001)
 
-MAX_IMAGES = 64
+MAX_IMAGES = numSamples
 
 leftImageDir = LEFT_DIR
 rightImageDir = RIGHT_DIR
