@@ -1,20 +1,18 @@
 from DualCameraAPIs.dualcamerastream import DualCameraStream
 
-import glob
-import os
+import numpy as np
+import cv2
+
+import time
 import random
 import sys
-import time
+import glob
+import os
 
-import cv2
-import numpy as np
+inputAsInt = lambda prompt, default_value: int(input(prompt) or default_value)
 
-inputAsInt = lambda prompt: int(input(prompt))
-
-# MY_PATH = "/Users/ariapahlavan/code/py/see-through-video-stitching"
-MY_PATH = "."
-LEFT_DIR = MY_PATH + "/left"
-RIGHT_DIR = MY_PATH + "/right"
+LEFT_DIR = "./left"
+RIGHT_DIR = "./right"
 
 try:
     os.mkdir(LEFT_DIR)
@@ -23,41 +21,45 @@ except:
     print("directories already exist")
 
 IMAGE_NAME_FORMAT = "/{:06d}.jpg"
-LEFT_PATH = LEFT_DIR + IMAGE_NAME_FORMAT
-RIGHT_PATH = RIGHT_DIR + IMAGE_NAME_FORMAT
+leftPath = LEFT_DIR + IMAGE_NAME_FORMAT
+rightPath = RIGHT_DIR + IMAGE_NAME_FORMAT
 
-CAMERA_HEIGHT = inputAsInt("Enter camera HEIGHT resolution in pixels (720?): ")
+DEFAULT_HEIGHT = 720
+cameraHeight = inputAsInt("Enter camera HEIGHT resolution in pixels ({}): ".format(DEFAULT_HEIGHT), DEFAULT_HEIGHT)
 
-CAMERA_WIDTH = inputAsInt("Enter camera WIDTH resolution in pixels (1280?): ")
+DEFAULT_WIDTH = 1280
+cameraWidth = inputAsInt("Enter camera WIDTH resolution in pixels ({}): ".format(DEFAULT_WIDTH), DEFAULT_WIDTH)
 
-print("Camera resolution entered: ({}, {})".format(CAMERA_WIDTH, CAMERA_HEIGHT))
+print("Camera resolution entered: ({}, {})".format(cameraWidth, cameraHeight))
 
-CROP_WIDTH = inputAsInt("Enter crop WIDTH in pixels (960?): ")
+DEFAULT_CROP_WIDTH = 960
+cropWidth = inputAsInt("Enter crop WIDTH in pixels ({}): ".format(DEFAULT_CROP_WIDTH), DEFAULT_CROP_WIDTH)
 
-CAMERA_RESOLUTION = (CAMERA_WIDTH, CAMERA_HEIGHT)
+CAMERA_RESOLUTION = (cameraWidth, cameraHeight)
 
 # CAMERA_WIDTH = 1280
 # CAMERA_HEIGHT = 720
 
 # CROP_WIDTH = 960
 
-cam1 = inputAsInt("Enter camera 1 source: ")
-cam2 = inputAsInt("Enter camera 2 source: ")
+DEFAULT_CAM1 = 0
+DEFAULT_CAM2 = 2
+cam1 = inputAsInt("Enter camera 1 source ({}): ".format(DEFAULT_CAM1), DEFAULT_CAM1)
+cam2 = inputAsInt("Enter camera 2 source ({}): ".format(DEFAULT_CAM2), DEFAULT_CAM2)
 print("Cameras to be used are {} and {}".format(cam1, cam2))
 dualCam = DualCameraStream(cam1=cam1, cam2=cam2, resolution=CAMERA_RESOLUTION)
 
 
 def cropHorizontal(image):
     return image[:,
-           int((CAMERA_WIDTH - CROP_WIDTH) / 2):
-           int(CROP_WIDTH + (CAMERA_WIDTH - CROP_WIDTH) / 2)]
+           int((cameraWidth - cropWidth) / 2):
+           int(cropWidth + (cameraWidth - cropWidth) / 2)]
 
 
 frameId = 0
 
 # capture:
-print("Press enter to start taking 64 pictures of the chessboard...")
-input()
+input("Press enter to start taking 64 pictures of the chessboard...")
 time.sleep(2)
 
 while frameId != 64:
@@ -66,8 +68,8 @@ while frameId != 64:
     leftFrame = cropHorizontal(leftFrame)
     rightFrame = cropHorizontal(rightFrame)
 
-    cv2.imwrite(LEFT_PATH.format(frameId), leftFrame)
-    cv2.imwrite(RIGHT_PATH.format(frameId), rightFrame)
+    cv2.imwrite(leftPath.format(frameId), leftFrame)
+    cv2.imwrite(rightPath.format(frameId), rightFrame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
@@ -81,16 +83,20 @@ while frameId != 64:
 dualCam.stop()
 
 # calibration:
-print("Press enter to continue calibrating...")
-input()
+input("Press enter to continue calibrating...")
 
-CHESSBOARD_HEIGHT = inputAsInt("Enter HEIGHT of chessboard in number of squares: ")
+DEFAULT_CHESSBOARD_HEIGHT = 4
+chessboardHeight = inputAsInt(
+    "Enter HEIGHT of chessboard in number of squares ({}): ".format(DEFAULT_CHESSBOARD_HEIGHT),
+    DEFAULT_CHESSBOARD_HEIGHT)
 
-CHESSBOARD_WIDTH = inputAsInt("Enter WIDTH of chessboard in number of squares: ")
+DEFAULT_CHESSBOARD_WIDTH = 5
+chessboardWidth = inputAsInt("Enter WIDTH of chessboard in number of squares ({}): ".format(DEFAULT_CHESSBOARD_WIDTH),
+                             DEFAULT_CHESSBOARD_WIDTH)
 
-print("Chessboard dimensions entered: ({}, {})".format(CHESSBOARD_WIDTH, CHESSBOARD_HEIGHT))
+print("Chessboard dimensions entered: ({}, {})".format(chessboardWidth, chessboardHeight))
 
-CHESSBOARD_SIZE = (CHESSBOARD_WIDTH, CHESSBOARD_HEIGHT)
+CHESSBOARD_SIZE = (chessboardWidth, chessboardHeight)
 
 CHESSBOARD_OPTIONS = (cv2.CALIB_CB_ADAPTIVE_THRESH |
                       cv2.CALIB_CB_NORMALIZE_IMAGE |
@@ -110,7 +116,12 @@ MAX_IMAGES = 64
 
 leftImageDir = LEFT_DIR
 rightImageDir = RIGHT_DIR
-outputFile = input("Enter path for storing the calibration configuration file: ")
+
+DEFAULT_OUTPUT_FILE = "./StereoCalibrationConfigs.npz"
+outputFile = (input("Enter path for storing the calibration configuration file ({}): ".format(DEFAULT_OUTPUT_FILE)) or
+              DEFAULT_OUTPUT_FILE)
+
+print("The output file is: '{}'".format(outputFile))
 
 
 def readImagesAndFindChessboards(imageDirectory):
@@ -168,10 +179,8 @@ def readImagesAndFindChessboards(imageDirectory):
     return filenames, objectPoints, imagePoints, imageSize
 
 
-(leftFilenames, leftObjectPoints, leftImagePoints, leftSize
- ) = readImagesAndFindChessboards(leftImageDir)
-(rightFilenames, rightObjectPoints, rightImagePoints, rightSize
- ) = readImagesAndFindChessboards(rightImageDir)
+(leftFilenames, leftObjectPoints, leftImagePoints, leftSize) = readImagesAndFindChessboards(leftImageDir)
+(rightFilenames, rightObjectPoints, rightImagePoints, rightSize) = readImagesAndFindChessboards(rightImageDir)
 
 if leftSize != rightSize:
     print("Camera resolutions do not match")
@@ -202,11 +211,11 @@ def getMatchingObjectAndImagePoints(requestedFilenames,
     return requestedObjectPoints, requestedImagePoints
 
 
-leftObjectPoints, leftImagePoints = getMatchingObjectAndImagePoints(filenames,
-                                                                    leftFilenames, leftObjectPoints, leftImagePoints)
-rightObjectPoints, rightImagePoints = getMatchingObjectAndImagePoints(filenames,
-                                                                      rightFilenames, rightObjectPoints,
-                                                                      rightImagePoints)
+leftObjectPoints, leftImagePoints = \
+    getMatchingObjectAndImagePoints(filenames, leftFilenames, leftObjectPoints, leftImagePoints)
+
+rightObjectPoints, rightImagePoints = \
+    getMatchingObjectAndImagePoints(filenames, rightFilenames, rightObjectPoints, rightImagePoints)
 
 # TODO: Fix this validation
 # Keep getting "Use a.any() or a.all()" even though it's already used?!
@@ -216,47 +225,49 @@ rightObjectPoints, rightImagePoints = getMatchingObjectAndImagePoints(filenames,
 objectPoints = leftObjectPoints
 
 print("Calibrating left camera...")
-_, leftCameraMatrix, leftDistortionCoefficients, _, _ = cv2.calibrateCamera(
-    objectPoints, leftImagePoints, imageSize, None, None)
+_, leftCameraMatrix, leftDistortionCoefficients, _, _ = \
+    cv2.calibrateCamera(objectPoints, leftImagePoints, imageSize, None, None)
+
 print("Calibrating right camera...")
-_, rightCameraMatrix, rightDistortionCoefficients, _, _ = cv2.calibrateCamera(
-    objectPoints, rightImagePoints, imageSize, None, None)
+_, rightCameraMatrix, rightDistortionCoefficients, _, _ = \
+    cv2.calibrateCamera(objectPoints, rightImagePoints, imageSize, None, None)
 
 print("Calibrating cameras together...")
-(_, _, _, _, _, rotationMatrix, translationVector, _, _) = cv2.stereoCalibrate(
-    objectPoints, leftImagePoints, rightImagePoints,
-    leftCameraMatrix, leftDistortionCoefficients,
-    rightCameraMatrix, rightDistortionCoefficients,
-    imageSize, None, None, None, None,
-    cv2.CALIB_FIX_INTRINSIC, TERMINATION_CRITERIA)
+(_, _, _, _, _, rotationMatrix, translationVector, _, _) = \
+    cv2.stereoCalibrate(objectPoints, leftImagePoints, rightImagePoints,
+                        leftCameraMatrix, leftDistortionCoefficients,
+                        rightCameraMatrix, rightDistortionCoefficients,
+                        imageSize, None, None, None, None,
+                        cv2.CALIB_FIX_INTRINSIC, TERMINATION_CRITERIA)
 
 print("Rectifying cameras...")
 # TODO: Why do I ccdare about the disparityToDepthMap?
-(leftRectification, rightRectification, leftProjection, rightProjection,
- dispartityToDepthMap, leftROI, rightROI) = cv2.stereoRectify(
-    leftCameraMatrix, leftDistortionCoefficients,
-    rightCameraMatrix, rightDistortionCoefficients,
-    imageSize, rotationMatrix, translationVector,
-    None, None, None, None, None,
-    cv2.CALIB_ZERO_DISPARITY, OPTIMIZE_ALPHA)
+(leftRectification, rightRectification, leftProjection, rightProjection, dispartityToDepthMap, leftROI, rightROI) = \
+    cv2.stereoRectify(leftCameraMatrix, leftDistortionCoefficients,
+                      rightCameraMatrix, rightDistortionCoefficients,
+                      imageSize, rotationMatrix, translationVector,
+                      None, None, None, None, None,
+                      cv2.CALIB_ZERO_DISPARITY, OPTIMIZE_ALPHA)
 
 print("Saving calibration...")
-leftMapX, leftMapY = cv2.initUndistortRectifyMap(
-    leftCameraMatrix, leftDistortionCoefficients, leftRectification,
-    leftProjection, imageSize, cv2.CV_32FC1)
-rightMapX, rightMapY = cv2.initUndistortRectifyMap(
-    rightCameraMatrix, rightDistortionCoefficients, rightRectification,
-    rightProjection, imageSize, cv2.CV_32FC1)
+leftMapX, leftMapY = \
+    cv2.initUndistortRectifyMap(leftCameraMatrix, leftDistortionCoefficients,
+                                leftRectification, leftProjection, imageSize,
+                                cv2.CV_32FC1)
 
-np.savez_compressed(outputFile, imageSize=imageSize,
-                    leftMapX=leftMapX, leftMapY=leftMapY, leftROI=leftROI,
-                    rightMapX=rightMapX, rightMapY=rightMapY, rightROI=rightROI)
+rightMapX, rightMapY = \
+    cv2.initUndistortRectifyMap(rightCameraMatrix, rightDistortionCoefficients,
+                                rightRectification, rightProjection, imageSize,
+                                cv2.CV_32FC1)
+
+np.savez_compressed(outputFile, imageSize=imageSize, leftMapX=leftMapX,
+                    leftMapY=leftMapY, leftROI=leftROI, rightMapX=rightMapX,
+                    rightMapY=rightMapY, rightROI=rightROI)
 
 cv2.destroyAllWindows()
 
 # stereo depth:
-print("Press enter to continue with stereo depth step...")
-input()
+input("Press enter to continue with stereo depth step...")
 
 REMAP_INTERPOLATION = cv2.INTER_LINEAR
 
@@ -276,7 +287,7 @@ dualCam = DualCameraStream(cam1=cam1, cam2=cam2, framerate=30, resolution=CAMERA
 
 
 def cropHorizontal(image):
-    return image[:, int((CAMERA_WIDTH - CROP_WIDTH) / 2):int(CROP_WIDTH + (CAMERA_WIDTH - CROP_WIDTH) / 2)]
+    return image[:, int((cameraWidth - cropWidth) / 2):int(cropWidth + (cameraWidth - cropWidth) / 2)]
 
 
 # TODO: Why these values in particular?
