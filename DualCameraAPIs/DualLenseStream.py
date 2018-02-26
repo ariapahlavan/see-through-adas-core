@@ -1,20 +1,20 @@
 import cv2
 
-from DualCameraAPIs.seethrustream import SeeThruStream
+from DualCameraAPIs.MonoLensStream import MonoLensStream
 
 
-class DualCameraStream:
+class DualLensStream:
     def __init__(self, cam1=0, cam2=2, framerate=30, resolution=(320, 240), debugEnable=False, debugCount=1000):
         """
         initialize the dual camera module
         """
         if not debugEnable:
-            self.left = SeeThruStream(cam1, framerate, resolution).start()
-            self.right = SeeThruStream(cam2, framerate, resolution).start()
+            self.left = MonoLensStream(cam1, framerate, resolution).start()
+            self.right = MonoLensStream(cam2, framerate, resolution).start()
             self.debugEnable = False
         else:
-            self.left = SeeThruStream(cam1, framerate, resolution, debugEnable=True, debugCount=debugCount).start()
-            self.right = SeeThruStream(cam2, framerate, resolution, debugEnable=True, debugCount=debugCount).start()
+            self.left = MonoLensStream(cam1, framerate, resolution, debugEnable=True, debugCount=debugCount).start()
+            self.right = MonoLensStream(cam2, framerate, resolution, debugEnable=True, debugCount=debugCount).start()
             self.debugEnable = True
 
     def read(self):

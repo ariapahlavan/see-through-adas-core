@@ -1,10 +1,10 @@
-from DualCameraAPIs.dualcamerastream import DualCameraStream
-from DualCameraAPIs.seethrustream import Resolution
-
+from DualCameraAPIs.MonoLensStream import MonoLensStream
 import cv2
 import time
 
-dualCam = DualCameraStream(cam1=0, cam2=2, framerate=60, resolution=Resolution._32p.value)
+
+left = MonoLensStream(src=0, framerate=30, resolution=(320, 240)).start()
+right = MonoLensStream(src=0, framerate=30, resolution=(320, 240)).start()
 
 iterCount = 1000
 iterNum = iterCount
@@ -14,9 +14,9 @@ minDelay = 0
 
 while True:
     cur_time_in_micro = time.time() * 1000 * 1000
-    leftFrame = dualCam.readLeft()
+    leftFrame = left.read()
     cur_time_in_micro2 = time.time() * 1000 * 1000
-    rightFrame = dualCam.readRight()
+    rightFrame = right.read()
     cur_time_in_micro3 = time.time() * 1000 * 1000
 
     print(cur_time_in_micro2 - cur_time_in_micro)
@@ -46,12 +46,11 @@ while True:
     if key == ord("q"):
         break
 
-toMillisec = lambda n: round(n / 1000)
-printResults = lambda title, n: print("{} is {} usec or {} msec".format(title, round(n), toMillisec(n)))
+print("average is {} usec".format(avg / iterCount))
+print("max is {} usec".format(maxDelay))
+print("min is {} usec".format(minDelay))
 
-printResults("Avg", avg / iterCount)
-printResults("Max", maxDelay)
-printResults("Min", minDelay)
-
-# stop cameras and close windows
-dualCam.stop()
+# do a bit of cleanup
+left.stop()
+right.stop()
+cv2.destroyAllWindows()

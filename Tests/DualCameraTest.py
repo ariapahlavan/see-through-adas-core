@@ -1,10 +1,14 @@
-from DualCameraAPIs.dualcamerastream import DualCameraStream
-from DualCameraAPIs.seethrustream import Resolution
+from DualCameraAPIs.DualLenseStream import DualLensStream
+from DualCameraAPIs.MonoLensStream import Resolution
 
 import cv2
 
+#closed = 0
+#open   = 3
 
-dualCam = DualCameraStream(cam1=0, cam2=2, framerate=30, resolution=Resolution._240p.value)
+#1
+#4
+dualCam = DualLensStream(cam1=0, cam2=2, framerate=30, resolution=Resolution._240p.value)
 
 while True:
     leftFrame, rightFrame = dualCam.read()

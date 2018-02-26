@@ -1,7 +1,7 @@
-from DualCameraAPIs.dualcamerastream import DualCameraStream
-from DualCameraAPIs.seethrustream import Resolution
+from DualCameraAPIs.DualLenseStream import DualLensStream
+from DualCameraAPIs.MonoLensStream import Resolution
 
-dualCam = DualCameraStream(cam1=0, cam2=2, framerate=60, resolution=Resolution._32p.value, debugEnable=True)
+dualCam = DualLensStream(cam1=0, cam2=2, framerate=60, resolution=Resolution._32p.value, debugEnable=True)
 avgTime, minTime, maxTime = dualCam.debugResults()
 
 

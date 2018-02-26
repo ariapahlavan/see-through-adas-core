@@ -18,7 +18,7 @@ class Resolution(Enum):
     _Hd = (1280, 720)
 
 
-class SeeThruStream:
+class MonoLensStream:
     def __init__(self, src=0, framerate=30, resolution=Resolution._240p.value, debugEnable=False, debugCount=1000):
         """
         initialize the video stream
