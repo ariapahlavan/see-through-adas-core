@@ -1,6 +1,6 @@
-from MyTests.Utils import *
+from Utils import *
 import cv2
-import numpy as np, sys
+import numpy as np
 
 
 def gaussianOf(im, numLayers=6, debug=False):
