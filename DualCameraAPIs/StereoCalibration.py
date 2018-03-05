@@ -308,6 +308,12 @@ stereoMatcher.setROI2(rightROI)
 stereoMatcher.setSpeckleRange(16)
 stereoMatcher.setSpeckleWindowSize(45)
 
+LEFT_DIR = "./left/img"
+RIGHT_DIR = "./right/img"
+DEPTH_DIR = "./depth/img"
+counter = 0
+fmt = ".jpg"
+
 # Grab both frames first, then retrieve to minimize latency between cameras
 while True:
     leftFrame, rightFrame = dualCam.read()
@@ -336,6 +342,13 @@ while True:
     cv2.imshow('left', fixedLeft)
     cv2.imshow('right', fixedRight)
     cv2.imshow('depth', depth / DEPTH_VISUALIZATION_SCALE)
+
+    cv2.imwrite("{}{}{}".format(LEFT_DIR, counter, fmt), fixedLeft)
+
+    cv2.imwrite("{}{}{}".format(RIGHT_DIR, counter, fmt), fixedRight)
+    cv2.imwrite("{}{}{}".format(DEPTH_DIR, counter, fmt), depth / DEPTH_VISUALIZATION_SCALE)
+
+    counter += 1
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
