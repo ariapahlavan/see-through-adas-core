@@ -6,7 +6,7 @@ from DualCameraAPIs.MonoLensStream import Resolution
 
 import cv2
 
-t = 1521658980000 * 1000  # a Unix time in microseconds
+t = 1521660060000 * 1000  # a Unix time in microseconds
 
 launcher = DualLensLauncher(timeToStart=t, cam=(0, 2))
 
