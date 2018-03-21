@@ -1,40 +1,50 @@
 import cv2
-import time
+import numpy as np
+
+from Utils import *
 
 BACK_PATH = "./back.jpg"
-FRONT_PATH = "./front.jpg"
+FORE_PATH = "./front.jpg"
 CHOOSER_WINDOW = "Choose Coordinates"
 
-backImg = cv2.imread(BACK_PATH, cv2.IMREAD_COLOR)
-frontImg = cv2.imread(FRONT_PATH, cv2.IMREAD_COLOR)
-
-stitchingCoordinates = []
+bgImg = cv2.imread(BACK_PATH, cv2.IMREAD_COLOR)
+fgImg = cv2.imread(FORE_PATH, cv2.IMREAD_COLOR)
 
 
-def justpass(): pass
+def showFinal(bg, fg):
+    # blendedBg = TestBlending(bg, numlayres=2, imgName="bg")
+    # blendedFg = TestBlending(fg, numlayres=2, imgName="fg")
+    #
+    # debugging = True
+    # blendedFinalImg = blendedBg.stitchedWith(blendedFg, debug=debugging).reconstructed(debug=debugging)
+    # cv2.imshow("Blended", blendedFinalImg)
+    finalImg = PatchImages(bg, fg)
+    cv2.imshow("stitched_no_blend", finalImg)
+
+    CloseAllWhenPressed()
 
 
-def onMouse(e, x, y, d, param):
-    if e == cv2.EVENT_LBUTTONDOWN:
-        if len(stitchingCoordinates) != 4:
-            stitchingCoordinates.append((x, y))
-            print("added ({}, {})".format(x, y))
+def transformPerspective():
+    fgHeight, fgWidth, _ = fgImg.shape
+    fgImageCoords = np.array([(0, 0),
+                              (0, fgHeight),
+                              (fgWidth, fgHeight),
+                              (fgWidth, 0)])
+    y0 = 285
+    y1 = 400
+    x0 = 447
+    x1 = 600
+    stitchingCoords = np.array([(x0, y0),
+                                (x0, y1),
+                                (x1, y1),
+                                (x1, y0)])
+    homography, _ = cv2.findHomography(fgImageCoords, stitchingCoords, 0)
 
-        if len(stitchingCoordinates) == 4:
-            cv2.setMouseCallback(CHOOSER_WINDOW, justpass)
-            cv2.destroyWindow(CHOOSER_WINDOW)
+    bgHeight, bgWidth, _ = bgImg.shape
+    projectedIm = cv2.warpPerspective(src=fgImg, M=homography, dsize=(bgWidth, bgHeight))
 
-    return
+    showFinal(bgImg, projectedIm)
 
 
-cv2.imshow(CHOOSER_WINDOW, backImg)
-cv2.setMouseCallback(CHOOSER_WINDOW, onMouse)
-
-while True:
-    key = cv2.waitKey(1) & 0xFF
-
-    # if the `q` key was pressed, break from the loop
-    if key == ord("q"):
-        break
-
-cv2.destroyAllWindows()
+if __name__ == "__main__":
+    transformPerspective()
