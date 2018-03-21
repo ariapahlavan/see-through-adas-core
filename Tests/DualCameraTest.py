@@ -8,7 +8,7 @@ import cv2
 
 #1
 #4
-dualCam = DualLensStream(cam1=0, cam2=2, framerate=30, resolution=Resolution._240p.value)
+dualCam = DualLensStream(cam1=0, cam2=2, framerate=30, resolution=Resolution._Hd.value)
 
 while True:
     leftFrame, rightFrame = dualCam.read()

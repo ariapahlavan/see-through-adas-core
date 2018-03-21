@@ -1,21 +1,50 @@
+import os
+
 from DualCameraAPIs.DualLensLauncher import DualLensLauncher
 from DualCameraAPIs.DualLenseStream import DualLensStream
 from DualCameraAPIs.MonoLensStream import Resolution
 
 import cv2
 
-t = 1520444990000*1000  # a Unix time in microseconds
+t = 1521658980000 * 1000  # a Unix time in microseconds
 
 launcher = DualLensLauncher(timeToStart=t, cam=(0, 2))
 
 stereoCam = launcher.getCams()
 
+LEFT_DIR = "./left"
+RIGHT_DIR = "./right"
+
+
+def createDir(path, name):
+    try:
+        os.mkdir(path)
+    except IOError:
+        print("{} directory already exist.".format(name))
+
+
+createDir(LEFT_DIR, "left")
+createDir(RIGHT_DIR, "right")
+
+IMAGE_NAME_FORMAT = "/{:06d}.jpg"
+leftPath = LEFT_DIR + IMAGE_NAME_FORMAT
+rightPath = RIGHT_DIR + IMAGE_NAME_FORMAT
+
+counter = 0
+fmt = ".jpg"
+LEFT_DIR = "./left/img"
+RIGHT_DIR = "./right/img"
 while True:
     leftFrame, rightFrame = stereoCam.read()
 
     # show the output frame
     cv2.imshow("cam left", leftFrame)
     cv2.imshow("cam right", rightFrame)
+
+    cv2.imwrite("{}{}{}".format(LEFT_DIR, counter, fmt), leftFrame)
+    cv2.imwrite("{}{}{}".format(RIGHT_DIR, counter, fmt), rightFrame)
+    counter += 1
+
     key = cv2.waitKey(1) & 0xFF
 
     # if the `q` key was pressed, break from the loop
