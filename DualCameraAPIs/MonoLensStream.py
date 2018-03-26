@@ -29,6 +29,11 @@ class MonoLensStream:
         w, h = resolution
         self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, w)
         self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, h)
+        self.stream.set(cv2.CAP_PROP_FPS, 30)
+
+        self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+        self.stream.set(cv2.CAP_PROP_EXPOSURE, -10)
+
         self.fpsDelay = 1 / framerate
 
         # read first frame

@@ -33,16 +33,15 @@ rightPath = RIGHT_DIR + IMAGE_NAME_FORMAT
 counter = 0
 fmt = ".jpg"
 LEFT_DIR = "./left/img"
-RIGHT_DIR = "./right/img"
+# RIGHT_DIR = "./right/img"
 while True:
     leftFrame, rightFrame = stereoCam.read()
 
-    # show the output frame
-    cv2.imshow("cam left", leftFrame)
-    cv2.imshow("cam right", rightFrame)
+    cv2.imshow("left cam", leftFrame)
+    # cv2.imshow("right cam", rightFrame)
 
     cv2.imwrite("{}{}{}".format(LEFT_DIR, counter, fmt), leftFrame)
-    cv2.imwrite("{}{}{}".format(RIGHT_DIR, counter, fmt), rightFrame)
+    # cv2.imwrite("{}{}{}".format(RIGHT_DIR, counter, fmt), rightFrame)
     counter += 1
 
     key = cv2.waitKey(1) & 0xFF

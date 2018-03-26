@@ -11,7 +11,7 @@ class DualLensLauncher:
     runningCam = None
     isCamLaunched = False
 
-    def __init__(self, timeToStart, cam=(0, 3), framerate=30, resolution=Resolution._240p.value):
+    def __init__(self, timeToStart, cam=(0, 3), framerate=30, resolution=Resolution._Hd.value):
         """
         launch a stereo cameras at a given time
         """
