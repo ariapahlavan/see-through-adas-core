@@ -1,10 +1,10 @@
-from StereoCameraAPIs.MonoLensStream import MonoLensStream
+from StereoCameraAPIs.StereoCameraStream import StereoCameraStream
+from StereoCameraAPIs.MonoLensStream import Resolution
+
 import cv2
 import time
 
-
-left = MonoLensStream(src=0, framerate=30, resolution=(320, 240)).start()
-right = MonoLensStream(src=0, framerate=30, resolution=(320, 240)).start()
+stereo = StereoCameraStream(cam1=0, cam2=2, framerate=60, resolution=Resolution._32p.value)
 
 iterCount = 1000
 iterNum = iterCount
@@ -14,9 +14,9 @@ minDelay = 0
 
 while True:
     cur_time_in_micro = time.time() * 1000 * 1000
-    leftFrame = left.read()
+    leftFrame = stereo.readLeft()
     cur_time_in_micro2 = time.time() * 1000 * 1000
-    rightFrame = right.read()
+    rightFrame = stereo.readRight()
     cur_time_in_micro3 = time.time() * 1000 * 1000
 
     print(cur_time_in_micro2 - cur_time_in_micro)
@@ -46,11 +46,12 @@ while True:
     if key == ord("q"):
         break
 
-print("average is {} usec".format(avg / iterCount))
-print("max is {} usec".format(maxDelay))
-print("min is {} usec".format(minDelay))
+toMillisec = lambda n: round(n / 1000)
+printResults = lambda title, n: print("{} is {} usec or {} msec".format(title, round(n), toMillisec(n)))
 
-# do a bit of cleanup
-left.stop()
-right.stop()
-cv2.destroyAllWindows()
+printResults("Avg", avg / iterCount)
+printResults("Max", maxDelay)
+printResults("Min", minDelay)
+
+# stop cameras and close windows
+stereo.stop()

@@ -1,14 +1,14 @@
 import os
 
-from DualCameraAPIs.DualLensLauncher import DualLensLauncher
-from DualCameraAPIs.DualLenseStream import DualLensStream
-from DualCameraAPIs.MonoLensStream import Resolution
+from StereoCameraAPIs.StereoCameraLauncher import StereoCameraLauncher
+from StereoCameraAPIs.StereoCameraStream import StereoCameraStream
+from StereoCameraAPIs.MonoLensStream import Resolution
 
 import cv2
 
 t = 1521660060000 * 1000  # a Unix time in microseconds
 
-launcher = DualLensLauncher(timeToStart=t, cam=(0, 2))
+launcher = StereoCameraLauncher(timeToStart=t, cam=(0, 2))
 
 stereoCam = launcher.getCams()
 
