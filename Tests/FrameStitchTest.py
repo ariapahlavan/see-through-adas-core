@@ -1,8 +1,8 @@
-import cv2
 import numpy as np
 
 from MyTests.TestBlending import TestBlending
 from Utils import *
+from VideoStitchingAPIs.FrameStitch import PatchImages
 
 BACK_PATH = "./back.jpg"
 FORE_PATH = "./front.jpg"

@@ -23,7 +23,7 @@ def transformPerspective(bgImg, fgImg):
     bgHeight, bgWidth, _ = bgImg.shape
     projectedIm = cv2.warpPerspective(src=fgImg, M=homography, dsize=(bgWidth, bgHeight))
 
-    from Utils import PatchImages
+    from VideoStitchingAPIs.FrameStitch import PatchImages
     finalImg = PatchImages(bgImg, projectedIm)
     cv2.imshow("stitched_no_blend", finalImg)
 

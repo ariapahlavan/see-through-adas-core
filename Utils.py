@@ -1,3 +1,6 @@
+from collections import Sized
+
+from collections import Iterator
 import cv2
 
 
@@ -44,20 +47,57 @@ def ShowImgAndCloseAllWhen(im, windowName="image", keyToWaitOn='q'):
 def ShowImg(im, windowName="image"): cv2.imshow(windowName, im)
 
 
-def PatchImages(bgImg, fgImg):
-    grayed = cv2.cvtColor(fgImg, cv2.COLOR_BGR2GRAY)
-    _, grayed = cv2.threshold(grayed, 0, 255, cv2.THRESH_BINARY)
-    grayedInv = cv2.bitwise_not(grayed)
-    # cv2.imshow("maskOfFront", grayed)
-
-    bgfinal = cv2.bitwise_and(bgImg, bgImg, mask=grayedInv)
-    fgfinal = cv2.bitwise_and(fgImg, fgImg, mask=grayed)
-
-    finalImage = cv2.add(bgfinal, fgfinal)
-
-    return finalImage
-
-
 def ShrinkBy(im, numpixels):
     h, w, _ = im.shape
     return im[numpixels:(h - numpixels), numpixels:(w - numpixels)]
+
+
+class CarParser(Iterator, Sized):
+    def __len__(self) -> int:
+        return len(self.lineList)
+
+    def __next__(self):
+        """
+        :return: next frame's ROI if any remained
+        """
+        while self.__len__() != self.index:
+            obj, roi = self.nextBoundary()
+            if obj == "-":   return None
+            if obj == "car": return roi  # todo implement check
+
+        raise StopIteration
+
+    def nextRoi(self):
+        """
+        :return: next frame's ROI if any remained
+        """
+        while self.__len__() != self.index:
+            obj, roi = self.nextBoundary()
+            if obj == "-":   return None
+            if obj == "car": return roi  # todo implement check
+
+        raise StopIteration
+
+    def __init__(self, filepath) -> None:
+        self.lineList = list()
+        inf = open(filepath)
+
+        for line in inf:
+            self.lineList.append(line.strip().split(','))
+        self.index = 0
+
+    def nextBoundary(self):
+        """
+        :return: boundary box the ROI corresponding to the front car in next frame
+        """
+        lineWords = self.lineList[self.index]
+        if lineWords[0] == "car":
+            roi = (lineWords[1], lineWords[2], lineWords[3], lineWords[4])
+        else:
+            roi = None
+
+        self.index += 1
+        return lineWords[0], roi
+
+    def __sizeof__(self):
+        return len(self.lineList)

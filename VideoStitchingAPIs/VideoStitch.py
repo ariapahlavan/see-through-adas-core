@@ -1,5 +1,6 @@
-import numpy as np
 import cv2
+
+from Utils import CarParser
 
 NUM_FRAMES = 6476
 IN_DIR = "./"
@@ -20,15 +21,27 @@ OUT_IMG_FORMAT = IMG_FORMAT
 
 outPathOf = lambda index: pathOf(OUT_PATH, OUT_IMG_NAME, index, OUT_IMG_FORMAT)
 
+ROI_FILE = "./roi.txt"
+parser = CarParser(ROI_FILE)
+
 frameCount = 0
 
 while frameCount != NUM_FRAMES:
+    try:
+        roi = parser.nextRoi()
+        if roi is None:
+            frameCount += 1
+            continue
+    except Exception:
+        break
+
     back = cv2.imread(backPathOf(frameCount))
     front = cv2.imread(frontPathOf(frameCount))
 
-    from VideoStitching.FrameStitch import transformPerspective
+    from VideoStitchingAPIs.FrameStitch import transformPerspective
 
-    stitchedFrame = transformPerspective(back, front, ())
+    stitchedFrame = transformPerspective(back, front, roi)
+
     cv2.imshow("stitched", stitchedFrame)
     # cv2.imwrite(outPathOf(frameCount), stitchedFrame)
 
