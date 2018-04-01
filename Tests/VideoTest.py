@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-video = cv2.VideoCapture("test.mp4")
+cap = cv2.VideoCapture("test.mp4")
 
 
 def transformPerspective(bgImg, fgImg):
@@ -18,6 +18,8 @@ def transformPerspective(bgImg, fgImg):
                                 (x0, y1),
                                 (x1, y1),
                                 (x1, y0)])
+    print("fgImageCoords:\n{}".format(fgImageCoords))
+    print("stitchingCoords:\n{}".format(stitchingCoords))
     homography, _ = cv2.findHomography(fgImageCoords, stitchingCoords, 0)
 
     bgHeight, bgWidth, _ = bgImg.shape
@@ -30,7 +32,8 @@ def transformPerspective(bgImg, fgImg):
 
 fg = cv2.imread("./front.jpg")
 while True:
-    _, leftFrame = video.read()
+
+    _, leftFrame = cap.read()
 
     # show the output frame
     transformPerspective(leftFrame, leftFrame)
@@ -40,5 +43,5 @@ while True:
     if key == ord("q"):
         break
 
-video.release()
+cap.release()
 cv2.destroyAllWindows()

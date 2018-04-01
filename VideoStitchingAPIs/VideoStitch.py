@@ -1,11 +1,13 @@
+from time import sleep
+
 import cv2
 
 from Utils import CarParser
 
 NUM_FRAMES = 6476
-IN_DIR = "./"
-BACK_PATH = "{}back".format(IN_DIR)
-FRONT_PATH = "{}front".format(IN_DIR)
+IN_DIR = "../Tests/"
+BACK_PATH = "{}backSynch".format(IN_DIR)
+FRONT_PATH = "{}frontSynch".format(IN_DIR)
 IMG_NAME = "img"
 IMG_FORMAT = ".jpg"
 
@@ -24,26 +26,34 @@ outPathOf = lambda index: pathOf(OUT_PATH, OUT_IMG_NAME, index, OUT_IMG_FORMAT)
 ROI_FILE = "./roi.txt"
 parser = CarParser(ROI_FILE)
 
-frameCount = 0
+frameCount = 1
 
+roi = None
 while frameCount != NUM_FRAMES:
-    try:
-        roi = parser.nextRoi()
-        if roi is None:
-            frameCount += 1
-            continue
-    except Exception:
-        break
+    # try:
+    #     roi = parser.nextRoi()
+    # except StopIteration:
+    #     break
 
     back = cv2.imread(backPathOf(frameCount))
     front = cv2.imread(frontPathOf(frameCount))
+    # cv2.imshow("front", front)
+    # cv2.imshow("back", back)
+    try:
+        roi = parser.nextRoi(back, front)
+    except StopIteration:
+        break
 
-    from VideoStitchingAPIs.FrameStitch import transformPerspective
-
-    stitchedFrame = transformPerspective(back, front, roi)
-
-    cv2.imshow("stitched", stitchedFrame)
+    # if roi is not None:
+    #     from VideoStitchingAPIs.FrameStitch import transformPerspective
+    #     stitchedFrame = transformPerspective(back, front, roi)
+    # else:
+    #     stitchedFrame = back
+    #
+    # cv2.imshow("stitched", stitchedFrame)
     # cv2.imwrite(outPathOf(frameCount), stitchedFrame)
+
+    # sleep(1)
 
     frameCount += 1
 

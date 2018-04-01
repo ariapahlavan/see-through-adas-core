@@ -31,9 +31,11 @@ def transformPerspective(bgImg, fgImg, roi):
                                (x0, y1),
                                (x1, y1),
                                (x1, y0)])
+
+    print("stitchToCoords:\n{}".format(stitchToCoords))
     homography, _ = cv2.findHomography(fgImageCoords, stitchToCoords, 0)
 
     bgHeight, bgWidth, _ = bgImg.shape
     projectedIm = cv2.warpPerspective(src=fgImg, M=homography, dsize=(bgWidth, bgHeight))
 
-    stitch(bgImg, projectedIm)
+    return stitch(bgImg, projectedIm)

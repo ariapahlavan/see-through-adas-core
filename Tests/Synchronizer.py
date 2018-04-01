@@ -17,14 +17,14 @@ while True:
     # # front = cv2.pyrDown(front)
     # # cv2.imshow("front", front)
     # # cv2.imshow("back", back)
-    # cv2.imwrite("frontKindaSynch2/img{}.jpg".format(bcounter), front)
-    # cv2.imwrite("backKindaSynch2/img{}.jpg".format(bcounter), back)
+    # cv2.imwrite("frontSynch/img{}.jpg".format(bcounter), front)
+    # cv2.imwrite("backSynch/img{}.jpg".format(bcounter), back)
     # fcounter += frameDiff
     # bcounter += 1
     # print(bcounter)
 
-    # front = cv2.imread("frontKindaSynch2/img{}.jpg".format(counter))
-    # back = cv2.imread("backKindaSynch2/img{}.jpg".format(counter))
+    # front = cv2.imread("frontSynch/img{}.jpg".format(counter))
+    # back = cv2.imread("backSynch/img{}.jpg".format(counter))
     # back = back
     # front = cv2.pyrDown(cv2.pyrDown(front))
     # cv2.imshow("front", front)
