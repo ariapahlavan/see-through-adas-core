@@ -17,7 +17,22 @@ def PatchImages(bgImg, fgImg):
     return finalImage
 
 
-def stitch(bg, fg): return PatchImages(bg, fg)
+def PoissonBlend(bgImg, fgImg, roi):
+    mask = MaskWith(fgImg.shape, roi)
+
+    cx, cy = CenterOf(roi)
+    out = cv2.seamlessClone(fgImg,
+                            bgImg,
+                            mask,
+                            (int(cx), int(cy)),
+                            cv2.NORMAL_CLONE)
+
+    cv2.imshow("out", out)
+
+    return out
+
+
+def stitch(bg, fg, roi): return PoissonBlend(bg, fg, roi)
 
 
 def transformPerspective(bgImg, fgImg, roi):
@@ -32,10 +47,9 @@ def transformPerspective(bgImg, fgImg, roi):
                                (x1, y1),
                                (x1, y0)])
 
-    print("stitchToCoords:\n{}".format(stitchToCoords))
     homography, _ = cv2.findHomography(fgImageCoords, stitchToCoords, 0)
 
     bgHeight, bgWidth, _ = bgImg.shape
     projectedIm = cv2.warpPerspective(src=fgImg, M=homography, dsize=(bgWidth, bgHeight))
 
-    return stitch(bgImg, projectedIm)
+    return stitch(bgImg, projectedIm, roi)

@@ -100,3 +100,5 @@ ENV/
 # mypy
 .mypy_cache/
 MyTests/*
+Tests/test_out/*
+VideoStitchingAPIs/test_out/*

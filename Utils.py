@@ -52,23 +52,44 @@ def ShrinkBy(im, numpixels):
     return im[numpixels:(h - numpixels), numpixels:(w - numpixels)]
 
 
-CENTER = 1280 / 2, 720 / 2
+def MaskWith(imgShape, maskRoi):
+    import numpy as np
+    h, w, nl = imgShape
+    mx0, my0, mx1, my1 = maskRoi
+    outImg = np.zeros((h, w), np.uint8)
+    outImg[my0:my1, mx0:mx1] = 255
+
+    return outImg
+
+
+WIGHT, HEIGHT = 1280, 720
+CENTER = int(WIGHT / 2), int(HEIGHT / 2)
+
+
+def ValidatedRoi(roi):
+    X = 220
+    Y = 130
+    x0, y0, x1, y1 = roi
+    p = (x1 - x0) * (y1 - y0)
+    if p < X * Y:
+        x0 -= 56
+        y0 -= 80
+        return (x0, y0, x0 + X, y0 + Y)
+    else:
+        return roi
 
 
 def DistFromCenterOf(centerOfRoi):
-    print("center={}".format(CENTER))
-    print("centerRoi={}".format(centerOfRoi))
     cx, cy = CENTER
     x, y = centerOfRoi
 
     from math import sqrt
     return sqrt(
-        (cx - x)**2 + (cy - y)**2
+        (cx - x) ** 2 + (cy - y) ** 2
     )
 
 
 def CenterOf(roi):
-    print("roi={}".format(roi))
     x0, y0, x1, y1 = roi
     return (x0 + x1) / 2, (y0 + y1) / 2
 
@@ -78,24 +99,18 @@ def IsCloser(roi, prevRoi):
     distOfPrev = DistFromCenterOf(CenterOf(prevRoi))
     dist = distOfRoi < distOfPrev
 
-    print("dist of cur={}, prev={}".format(distOfRoi, distOfPrev))
     return dist
-    # return DistFromCenterOf(CenterOf(roi)) > \
-    #        DistFromCenterOf(CenterOf(prevRoi))
 
 
-class CarParser(Iterator, Sized):
-    def __len__(self) -> int:
-        return len(self.objectsOfFrames)
+class CarParser(Sized):
+    def distToPrev(self, roi):
+        px, py = CenterOf(self.prevRoi)
+        x, y = CenterOf(roi)
 
-    def __next__(self):
-        """
-        :return: next frame's ROI if any remained
-        """
-        if self.__len__() == self.index:
-            raise StopIteration
-
-        # return self.nextRoi()
+        from math import sqrt
+        return sqrt(
+            (px - x) ** 2 + (py - y) ** 2
+        )
 
     def nextRoi(self, bg, fg):
         """
@@ -103,49 +118,25 @@ class CarParser(Iterator, Sized):
         """
         curFrameObjs = self.objectsOfFrames[self.index]
         roi = None
+        minDist = 1500
 
         for obj in curFrameObjs:
             if obj[0] == "car":
                 curRoi = (int(obj[1]), int(obj[2]), int(obj[3]), int(obj[4]))
-                if roi is None or IsCloser(curRoi, roi):
+                curDist = self.distToPrev(curRoi)
+                if roi is None or curDist < minDist:
+                    minDist = curDist
                     roi = curRoi
 
-        if roi is None:
-            self.index += 1
-            cv2.imshow("stitching", bg)
-            return roi
+        if roi is None or self.distToPrev(roi) < 30:
+            roi = self.prevRoi
 
         from VideoStitchingAPIs.FrameStitch import transformPerspective
-        stitched = transformPerspective(bg, fg, roi)
+        stitched = transformPerspective(bg, fg, ValidatedRoi(roi))
 
-        for obj in curFrameObjs:
-            if obj[0] == "car":
-                curRoi = (int(obj[1]), int(obj[2]), int(obj[3]), int(obj[4]))
-                x, y = CenterOf(curRoi)
-                print("center=({}, {})".format(x,y))
-                cv2.circle(stitched, (int(x), int(y)), 10, (0, 0, 255), thickness=-1)
-
-        cv2.circle(stitched, (640, 360), 10, (0, 255, 0), thickness=-1)
-        cv2.imshow("stitching", stitched)
-
-        from time import sleep
-        sleep(1/30)
-
-        print("index={}".format(self.index))
         self.index += 1
-        return roi
-        # curFrameObjs = self.objectsOfFrames[self.index]
-        # roi = None
-        #
-        # for obj in curFrameObjs:
-        #     if obj[0] == "car":
-        #         curRoi = (int(obj[1]), int(obj[2]), int(obj[3]), int(obj[4]))
-        #         if roi is None or IsCloser(curRoi, roi):
-        #             roi = curRoi
-        #             # break
-        #
-        # self.index += 1
-        # return roi
+        self.prevRoi = roi
+        return stitched
 
     def __init__(self, filepath) -> None:
         self.objectsOfFrames = list()
@@ -161,7 +152,18 @@ class CarParser(Iterator, Sized):
             else:
                 curImgObjects.append(stripped.split(','))
 
+        roi = None
+        for obj in self.objectsOfFrames[0]:
+            if obj[0] == "car":
+                curRoi = (int(obj[1]), int(obj[2]), int(obj[3]), int(obj[4]))
+                if roi is None or IsCloser(curRoi, roi):
+                    roi = curRoi
+
+        self.prevRoi = roi
         self.index = 0
 
     def __sizeof__(self):
+        return len(self.objectsOfFrames)
+
+    def __len__(self) -> int:
         return len(self.objectsOfFrames)
