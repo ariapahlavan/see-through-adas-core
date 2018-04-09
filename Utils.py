@@ -4,6 +4,10 @@ from collections import Iterator
 import cv2
 
 
+def FpsOf(start):
+    return cv2.getTickFrequency() / (cv2.getTickCount() - start)
+
+
 def CloseWhenPressed(windowName, keyToWaitOn='q'):
     while True:
         key = cv2.waitKey(1) & 0xFF
