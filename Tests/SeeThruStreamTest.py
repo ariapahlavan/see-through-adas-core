@@ -1,10 +1,10 @@
-from StereoCameraAPIs.MonoLensStream import MonoLensStream
+from StereoCameraAPIs.OldMonoLensStream import OldMonoLensStream
 import cv2
 import time
 
 
-left = MonoLensStream(src=0, framerate=30, resolution=(320, 240)).start()
-right = MonoLensStream(src=0, framerate=30, resolution=(320, 240)).start()
+left = OldMonoLensStream(src=0, framerate=30, resolution=(320, 240)).start()
+right = OldMonoLensStream(src=0, framerate=30, resolution=(320, 240)).start()
 
 iterCount = 1000
 iterNum = iterCount

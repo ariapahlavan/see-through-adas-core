@@ -1,12 +1,12 @@
 import os
+
+from StereoCameraAPIs.OldStereoCameraLauncher import OldStereoCameraLauncher
+
 import cv2
-
-from StereoCameraAPIs.StereoCameraLauncher import StereoCameraLauncher
-
 
 t = 1521660060000 * 1000  # a Unix time in microseconds
 
-launcher = StereoCameraLauncher(timeToStart=t, cam=(0, 0))
+launcher = OldStereoCameraLauncher(timeToStart=t, cam=(0, 2))
 
 stereoCam = launcher.getCams()
 
@@ -33,11 +33,9 @@ fmt = ".jpg"
 LEFT_DIR = "./left/img"
 # RIGHT_DIR = "./right/img"
 while True:
-    leftData, rightData = stereoCam.read()
-    leftFrame, leftTime = leftData
-    rightFrame, rightTime = rightData
+    leftFrame, rightFrame = stereoCam.read()
 
-    # cv2.imshow("left cam", leftFrame)
+    cv2.imshow("left cam", leftFrame)
     # cv2.imshow("right cam", rightFrame)
 
     cv2.imwrite("{}{}{}".format(LEFT_DIR, counter, fmt), leftFrame)

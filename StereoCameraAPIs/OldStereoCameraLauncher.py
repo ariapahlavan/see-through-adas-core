@@ -1,12 +1,13 @@
+import threading
 import time
 from threading import Thread
 
-from StereoCameraAPIs.StereoCameraStream import StereoCameraStream
-from StereoCameraAPIs.MonoLensStream import Resolution
+from StereoCameraAPIs.OldStereoCameraStream import OldStereoCameraStream
+from StereoCameraAPIs.OldMonoLensStream import Resolution
 from Common import SecToMicrosec
 
 
-class StereoCameraLauncher:
+class OldStereoCameraLauncher:
     runningCam = None
     isCamLaunched = False
 
@@ -27,7 +28,7 @@ class StereoCameraLauncher:
 
         print("started at {}".format(time.time()))
 
-        self.runningCam = StereoCameraStream(stereoCam[0], stereoCam[1], framerate, resolution)
+        self.runningCam = OldStereoCameraStream(stereoCam[0], stereoCam[1], framerate, resolution)
         self.isCamLaunched = True
 
     def getCams(self):

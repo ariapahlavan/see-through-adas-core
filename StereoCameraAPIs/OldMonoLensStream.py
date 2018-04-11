@@ -18,17 +18,8 @@ class Resolution(Enum):
     _Hd = (1280, 720)
 
 
-class MonoLensStream:
-    def setParam(self, param, value, name):
-        if self.stream.set(param, value):
-            pass
-        else:
-            import logging
-            log = logging.getLogger()
-            log.warning("[WARN] cannot set "+name)
-
-    def __init__(self, src=0, framerate=30, resolution=Resolution._240p.value, fourcc="MJPG", exposure=-10,
-                 debugEnable=False, debugCount=1000):
+class OldMonoLensStream:
+    def __init__(self, src=0, framerate=30, resolution=Resolution._240p.value, debugEnable=False, debugCount=1000):
         """
         initialize the video stream
         """
@@ -36,16 +27,12 @@ class MonoLensStream:
 
         # set resolution
         w, h = resolution
-        # self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, w)
-        # self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, h)
-        # self.stream.set(cv2.CAP_PROP_FPS, framerate)
-        # self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*fourcc))
-        # self.stream.set(cv2.CAP_PROP_EXPOSURE, exposure)
-        self.setParam(cv2.CAP_PROP_FRAME_WIDTH, w, "width")
-        self.setParam(cv2.CAP_PROP_FRAME_HEIGHT, h, "height")
-        self.setParam(cv2.CAP_PROP_FPS, framerate, "fps")
-        self.setParam(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*fourcc), "fourcc")
-        self.setParam(cv2.CAP_PROP_EXPOSURE, exposure, "exposure")
+        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, w)
+        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, h)
+        self.stream.set(cv2.CAP_PROP_FPS, 30)
+
+        self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+        self.stream.set(cv2.CAP_PROP_EXPOSURE, -10)
 
         self.fpsDelay = 1 / framerate
 
@@ -61,8 +48,6 @@ class MonoLensStream:
             self.frameReaderThread = Thread(target=self.debugUpdate, args=())
 
         self.streamStopped = False
-        self.grabbedTime = time.time()
-        self.returnedTime = self.grabbedTime
 
     def start(self):
         """
@@ -82,18 +67,14 @@ class MonoLensStream:
                 return
 
             (self.grabbed, self.frame) = self.stream.read()
-            self.grabbedTime = time.time()
-            # time.sleep(self.fpsDelay)
+
+            time.sleep(self.fpsDelay)
 
     def read(self):
         """
         :return: the current frame
         """
-        while self.returnedTime == self.grabbedTime:
-            continue
-
-        self.returnedTime = self.grabbedTime
-        return self.frame, self.returnedTime
+        return self.frame
 
     def stop(self):
         """

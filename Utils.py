@@ -132,7 +132,7 @@ class CarParser(Sized):
                     minDist = curDist
                     roi = curRoi
 
-        if roi is None or self.distToPrev(roi) < 30:
+        if roi is None or self.distToPrev(roi) < 20 or self.distToPrev(roi) > 40:
             roi = self.prevRoi
 
         from VideoStitchingAPIs.FrameStitch import transformPerspective

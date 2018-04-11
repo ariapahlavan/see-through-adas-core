@@ -1,9 +1,9 @@
-from StereoCameraAPIs.StereoCameraStream import StereoCameraStream
-from StereoCameraAPIs.MonoLensStream import Resolution
+from StereoCameraAPIs.OldStereoCameraStream import OldStereoCameraStream
+from StereoCameraAPIs.OldMonoLensStream import Resolution
 
 import cv2
 
-stereo = StereoCameraStream(cam1=0, cam2=2, framerate=30, resolution=Resolution._Hd.value)
+stereo = OldStereoCameraStream(cam1=0, cam2=2, framerate=30, resolution=Resolution._Hd.value)
 
 while True:
     leftFrame, rightFrame = stereo.read()

@@ -1,7 +1,7 @@
-from StereoCameraAPIs.StereoCameraStream import StereoCameraStream
-from StereoCameraAPIs.MonoLensStream import Resolution
+from StereoCameraAPIs.OldStereoCameraStream import OldStereoCameraStream
+from StereoCameraAPIs.OldMonoLensStream import Resolution
 
-stereo = StereoCameraStream(cam1=0, cam2=2, framerate=60, resolution=Resolution._32p.value, debugEnable=True)
+stereo = OldStereoCameraStream(cam1=0, cam2=2, framerate=60, resolution=Resolution._32p.value, debugEnable=True)
 avgTime, minTime, maxTime = stereo.debugResults()
 
 

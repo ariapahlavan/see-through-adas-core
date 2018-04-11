@@ -1,10 +1,10 @@
-from StereoCameraAPIs.StereoCameraStream import StereoCameraStream
-from StereoCameraAPIs.MonoLensStream import Resolution
+from StereoCameraAPIs.OldStereoCameraStream import OldStereoCameraStream
+from StereoCameraAPIs.OldMonoLensStream import Resolution
 
 import cv2
 import time
 
-stereo = StereoCameraStream(cam1=0, cam2=2, framerate=60, resolution=Resolution._32p.value)
+stereo = OldStereoCameraStream(cam1=0, cam2=2, framerate=60, resolution=Resolution._32p.value)
 
 iterCount = 1000
 iterNum = iterCount

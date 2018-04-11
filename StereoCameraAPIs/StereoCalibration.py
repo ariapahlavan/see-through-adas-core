@@ -1,4 +1,4 @@
-from StereoCameraAPIs.StereoCameraStream import StereoCameraStream
+from StereoCameraAPIs.OldStereoCameraStream import OldStereoCameraStream
 
 import numpy as np
 import cv2
@@ -157,7 +157,7 @@ if input("Recapture chessboard images? (\'y\')") == "y":
     input("Press enter to start taking {} pictures of the chessboard...".format(numSamples))
     time.sleep(2)
 
-    dualCam = StereoCameraStream(cam1=cam1, cam2=cam2, resolution=CAMERA_RESOLUTION)
+    dualCam = OldStereoCameraStream(cam1=cam1, cam2=cam2, resolution=CAMERA_RESOLUTION)
 
     frameId = 0
 
@@ -295,7 +295,7 @@ rightMapX = calibration["rightMapX"]
 rightMapY = calibration["rightMapY"]
 rightROI = tuple(calibration["rightROI"])
 
-dualCam = StereoCameraStream(cam1=cam1, cam2=cam2, framerate=30, resolution=CAMERA_RESOLUTION)
+dualCam = OldStereoCameraStream(cam1=cam1, cam2=cam2, framerate=30, resolution=CAMERA_RESOLUTION)
 
 # TODO: Why these values in particular?
 # TODO: Try applying brightness/contrast/gamma adjustments to the images
