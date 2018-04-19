@@ -1,14 +1,9 @@
 import os
+import time
 import cv2
-
 from StereoCameraAPIs.MonoLensLauncher import MonoLensLauncher
 
 t = 1521660060000 * 1000  # a Unix time in microseconds
-
-launcher = MonoLensLauncher(timeToStart=t, lens=0, framerate=30)
-
-monoCam = launcher.getCams()
-DIR = "./out"
 
 
 def createDir(path, name):
@@ -18,12 +13,18 @@ def createDir(path, name):
         print("{} directory already exist.".format(name))
 
 
+DIR = "./out"
 createDir(DIR, "out")
+
+launcher = MonoLensLauncher(timeToStart=t, lens=0, framerate=30)
+
+monoCam = launcher.getCams()
+
+startingTime = time.time()
 
 counter = 1
 fmt = ".jpg"
 DIR = "./out/img"
-
 while True:
     frame, capturedTime = monoCam.read()
 
@@ -40,3 +41,5 @@ while True:
 
 # stop cameras and close windows
 launcher.stop()
+
+print("elapsed time = {}".format(time.time() - startingTime))
