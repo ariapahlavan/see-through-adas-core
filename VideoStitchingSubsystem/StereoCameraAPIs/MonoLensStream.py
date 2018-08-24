@@ -36,11 +36,6 @@ class MonoLensStream:
 
         # set resolution
         w, h = resolution
-        # self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, w)
-        # self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, h)
-        # self.stream.set(cv2.CAP_PROP_FPS, framerate)
-        # self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*fourcc))
-        # self.stream.set(cv2.CAP_PROP_EXPOSURE, exposure)
         self.setParam(cv2.CAP_PROP_FRAME_WIDTH, w, "width")
         self.setParam(cv2.CAP_PROP_FRAME_HEIGHT, h, "height")
         self.setParam(cv2.CAP_PROP_FPS, framerate, "fps")

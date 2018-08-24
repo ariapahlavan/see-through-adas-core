@@ -1,8 +1,8 @@
 import numpy as np
 
-from MyTests.TestBlending import TestBlending
-from Utils import *
-from VideoStitchingAPIs.FrameStitch import PatchImages
+from VideoStitchingSubsystem.MyTests.TestBlending import TestBlending
+from VideoStitchingSubsystem.Utils import *
+from VideoStitchingSubsystem.VideoStitchingAPIs.FrameStitch import PatchImages
 
 BACK_PATH = "./back.jpg"
 FORE_PATH = "./front.jpg"
@@ -15,8 +15,7 @@ fgImg = cv2.imread(FORE_PATH, cv2.IMREAD_COLOR)
 def showFinal(bg, fg):
     blendedBg = TestBlending(bg, numlayres=2, imgName="bg")
     blendedFg = TestBlending(fg, numlayres=2, imgName="fg")
-    #
-    # debugging = True
+
     blendedFinalImg = blendedBg.stitchedWith(blendedFg).reconstructed()
     cv2.imshow("Blended", blendedFinalImg)
     cv2.imwrite("./blended.jpg", blendedFinalImg)

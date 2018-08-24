@@ -1,7 +1,7 @@
 import os
 import time
 import cv2
-from StereoCameraAPIs.MonoLensLauncher import MonoLensLauncher
+from VideoStitchingSubsystem.StereoCameraAPIs.MonoLensLauncher import MonoLensLauncher
 
 t = 1521660060000 * 1000  # a Unix time in microseconds
 

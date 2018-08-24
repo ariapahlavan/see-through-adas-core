@@ -102,3 +102,5 @@ ENV/
 MyTests/*
 Tests/test_out/*
 VideoStitchingAPIs/test_out/*
+*.jpg
+*.png

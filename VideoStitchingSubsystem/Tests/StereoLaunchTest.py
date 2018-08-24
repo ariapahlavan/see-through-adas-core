@@ -1,7 +1,7 @@
 import os
 import cv2
 
-from StereoCameraAPIs.StereoCameraLauncher import StereoCameraLauncher
+from VideoStitchingSubsystem.StereoCameraAPIs.StereoCameraLauncher import StereoCameraLauncher
 
 
 t = 1521660060000 * 1000  # a Unix time in microseconds
